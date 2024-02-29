@@ -59,14 +59,14 @@ std::vector<int> vec_sum_multithread(const std::vector<int>& vec1, const std::ve
 
     std::vector<int> result(size);
     std::vector<std::thread> threads;
-    int chunkSize = size / 4;
+    int chunk_size = size / 4;
 
     auto start = std::chrono::steady_clock::now();
 
     for (int i = 0; i < 4; i++) {
         threads.emplace_back([&, i]() {
-            int start = i * chunkSize;
-            int end = (i + 1) * chunkSize;
+            int start = i * chunk_size;
+            int end = (i + 1) * chunk_size;
             for (int j = start; j < end; j++) {
                 result[j] = vec1[j] + vec2[j];
             }
@@ -87,46 +87,38 @@ int main()
 {
     setlocale(LC_ALL, "RUSSIAN");
 
-    std::cout << "Колличество аппартаных ядер - " << std::thread::hardware_concurrency() << "\n" << std::endl;
-
     const unsigned int SIZE_1_000 = 1'000,
                        SIZE_10_000 = 10'000, 
                        SIZE_100_000 = 100'000, 
                        SIZE_1_000_000 = 1'000'000;
 
-    std::cout << "\t \t" << "  1'000      \t" << "  10'000      \t" << "  100'000      \t" << " 1'000'000      " << std::endl;
-
     //___________________________________________ ЗАПОЛНЕНИЕ ВЕКТОРОВ _____________________________________________________
 
-    std::vector<int> vec1_000_1(SIZE_1_000);
-    random_gen(vec1_000_1, SIZE_1_000);
-    std::vector<int> vec1_000_2(SIZE_1_000);
-    random_gen(vec1_000_2, SIZE_1_000);
+    std::vector<int> vec1_000_1(SIZE_1_000); random_gen(vec1_000_1, SIZE_1_000);
+    std::vector<int> vec1_000_2(SIZE_1_000); random_gen(vec1_000_2, SIZE_1_000);
 
-    std::vector<int> vec10_000_1(SIZE_10_000);
-    random_gen(vec10_000_1, SIZE_10_000);
-    std::vector<int> vec10_000_2(SIZE_10_000);
-    random_gen(vec10_000_2, SIZE_10_000);
+    std::vector<int> vec10_000_1(SIZE_10_000); random_gen(vec10_000_1, SIZE_10_000);
+    std::vector<int> vec10_000_2(SIZE_10_000); random_gen(vec10_000_2, SIZE_10_000);
 
-    std::vector<int> vec100_000_1(SIZE_100_000);
-    random_gen(vec100_000_1, SIZE_100_000);
-    std::vector<int> vec100_000_2(SIZE_100_000);
-    random_gen(vec100_000_2, SIZE_100_000);
+    std::vector<int> vec100_000_1(SIZE_100_000); random_gen(vec100_000_1, SIZE_100_000);
+    std::vector<int> vec100_000_2(SIZE_100_000); random_gen(vec100_000_2, SIZE_100_000);
 
-    std::vector<int> vec1_000_000_1(SIZE_1_000_000);
-    random_gen(vec1_000_000_1, SIZE_1_000_000);
-    std::vector<int> vec1_000_000_2(SIZE_1_000_000);
-    random_gen(vec1_000_000_2, SIZE_1_000_000);
+    std::vector<int> vec1_000_000_1(SIZE_1_000_000); random_gen(vec1_000_000_1, SIZE_1_000_000);
+    std::vector<int> vec1_000_000_2(SIZE_1_000_000); random_gen(vec1_000_000_2, SIZE_1_000_000);
 
     //________________________________________________ 1 ПОТОК ____________________________________________________________
-    std::cout << "1 поток \t";
-
-
-    vec_sum(vec1_000_1, vec1_000_2, SIZE_1_000);
-    vec_sum(vec10_000_1, vec10_000_2, SIZE_10_000);
-    vec_sum(vec100_000_1, vec100_000_2, SIZE_100_000);
-    vec_sum(vec1_000_000_1, vec1_000_000_2, SIZE_1_000_000);
     
+    std::thread thr1([&]() { 
+        std::cout << "Колличество аппартаных ядер - " << std::thread::hardware_concurrency() << "\n" << std::endl;
+        std::cout << "\t \t" << "  1'000      \t" << "  10'000      \t" << "  100'000      \t" << " 1'000'000      " << std::endl;
+        std::cout << "1 поток \t";
+        vec_sum(vec1_000_1, vec1_000_2, SIZE_1_000); 
+        vec_sum(vec10_000_1, vec10_000_2, SIZE_10_000);
+        vec_sum(vec100_000_1, vec100_000_2, SIZE_100_000);
+        vec_sum(vec1_000_000_1, vec1_000_000_2, SIZE_1_000_000);
+    });
+    thr1.join();
+
     //_______________________________________________ 2 ПОТОКА ____________________________________________________________
     std::cout << "\n2 потока\t";
     
